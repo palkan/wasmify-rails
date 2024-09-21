@@ -57,6 +57,19 @@
                 background-color: #ccc;
                 color: #666;
             }
+            #reload-debug-button {
+                background-color: rgb(159, 166, 40);
+                color: #000;
+                border: none;
+                padding: 0.5em 1em;
+                font-size: 1em;
+                cursor: pointer;
+                border: 1px solid #000;
+            }
+            #reload-debug-button:disabled {
+                background-color: #ccc;
+                color: #666;
+            }
         </style>
     </head>
     <body>
@@ -69,6 +82,9 @@
         <p>
             <button id="launch-button" disabled>Launch</button>
             <button id="reload-button" disabled>Reload Rails</button>
+            <button id="reload-debug-button" disabled>
+                Reload Rails (debug mode)
+            </button>
             <button id="reboot-button" disabled>Hard Reset*</button>
         </p>
 

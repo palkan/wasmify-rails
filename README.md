@@ -122,6 +122,39 @@ Rails application initialized!
 If the verification passes, you can proceed to the final step — building the Wasm module to be used on the web.
 If it fails, check out the error message and try to fix the issues (usually, configuration related).
 
+### Step 4: `bin/rails wasmify:pwa`
+
+We're ready to launch our Rails application fully within a browser!
+
+For that, you can use our starter Vite PWA application that can be generated via the following command:
+
+```sh
+bin/rails wasmify:pwa
+```
+
+Then, update your `config/wasmify.yml` to specify the path to the PWA app as the output:
+
+```yml
+output_dir: "pwa"
+# ...
+```
+
+Now, create the final Wasm module:
+
+```sh
+bin/rails wasmify:pack
+```
+
+And go to the `pwa` for the instructions on how to launch the application.
+
+## Roadmap
+
+- PGLite support (see [this example](https://github.com/kateinoigakukun/mastodon/blob/fff2e4a626a20a616c546ddf4f91766abaf1133a/pwa/dist/pglite.rb#L1))
+- Active Storage OPFS service
+- File uploads support (multipart/form-data)
+- Background jobs support
+- WASI Preview 2 support (also [this](https://github.com/kateinoigakukun/mastodon/tree/katei/wasmify))
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at [https://github.com/](https://github.com/).

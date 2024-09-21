@@ -1,32 +1,39 @@
 # PWA app to run a Rails Wasm app
 
-## Prerequisites
-
-The app relies on a Service Worker to serve requests through the Rails/Wasm app.
-Service Workers require secure connections, so we recommend using [puma-dev](https://github.com/puma/puma-dev) to deal with this limitation locally.
-
-Install [`puma-dev`](https://github.com/puma/puma-dev) and add the port 5173 to its configuration:
-
-```sh
-echo "5173" > ~/.puma-dev/rails-wasm
-```
+The app provides a Service Worker to serve requests through the Rails/Wasm app.
 
 ## Running locallly
 
 ```sh
 yarn install
 
-yarn dev --host 0.0.0.0
+yarn dev
 ```
 
-Then go to [https://rails-wasm.test](https://rails-wasm.test).
+Then go to [http://localhost:5173](http://localhost:5173).
 
 > [!NOTE]
 > Use Chrome or another browser supporting [CookieStore API](https://caniuse.com/?search=cookiestore).
 
-## Known issues
+## Serving via HTTPS
 
-The Ruby VM instance sometimes get lost in the worker (idk 🤷‍♂️). Just unregister it manually and restart the app—everything should work.
+Although `localhost` should work fine for development, you can also run the app over `https://` for a more production-like experience (and to attach a worker to a custom domain).
+
+For that, we recommend using [puma-dev](https://github.com/puma/puma-dev).
+
+Install `puma-dev` and add the port 5173 to its configuration:
+
+```sh
+echo "5173" > ~/.puma-dev/rails-wasm
+```
+
+Then, run the server as follows:
+
+```sh
+yarn dev --host 0.0.0.0
+```
+
+Go to [https://rails-wasm.test](https://rails-wasm.test) to open the app.
 
 ## Credits
 

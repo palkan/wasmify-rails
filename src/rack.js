@@ -90,7 +90,26 @@ export class RackHandler {
         request.method === "PUT" ||
         request.method === "PATCH"
       ) {
-        input = await request.text();
+        const contentType = request.headers.get("content-type");
+
+        // multipart inputs do not work correctly or some reason
+        // (_method is getting lost)
+        if (contentType.includes("multipart/form-data")) {
+          const formData = await request.formData();
+          // Remove file/blob values from FormData
+          for (const [key, value] of formData.entries()) {
+            if (value instanceof File) {
+              console.warn(
+                `[rails-wasm] Ignore file form input ${key}. Not supported yet.`,
+              );
+              formData.delete(key);
+            }
+          }
+
+          input = new URLSearchParams(formData).toString();
+        } else {
+          input = await request.text();
+        }
       }
 
       if (!railsURL.includes("/assets/")) {
@@ -116,17 +135,22 @@ export class RackHandler {
         status, headers, bodyiter = *response.finish
 
         body = ""
-        bodyiter.each { |part| body += part }
+        body_is_set = false
+
+        bodyiter.each do |part|
+          body += part
+          body_is_set = true
+        end
 
         # Serve images as base64 from Ruby and decode back in JS
-        if headers["Content-Type"] == "image/png" || headers["Content-Type"] == "image/jpeg"
+        if headers["Content-Type"]&.start_with?("image/")
           body = Base64.strict_encode64(body)
         end
 
         {
           status: status,
           headers: headers,
-          body: body
+          body: body_is_set ? body : nil
         }
       `;
 
@@ -157,10 +181,7 @@ export class RackHandler {
       }
 
       // Convert image into a blob
-      if (
-        headers["content-type"] == "image/png" ||
-        headers["content-type"] == "image/jpeg"
-      ) {
+      if (headers["content-type"]?.startsWith("image/")) {
         this.logger.log(
           "[rails-web]",
           `Converting ${headers["content-type"]} image into blob`,

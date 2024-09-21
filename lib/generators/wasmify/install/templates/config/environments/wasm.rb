@@ -8,7 +8,15 @@ Rails.application.configure do
   config.assume_ssl = false
   config.force_ssl  = false
 
-  config.consider_all_requests_local = ENV["DEBUG"] != "1"
+  # FIXME: Tags are not being reset right now
+  config.log_tags = []
+
+  if ENV["DEBUG"] == "1"
+    config.consider_all_requests_local = true
+    config.action_dispatch.show_exceptions = :none
+    config.log_level = :debug
+    config.logger = Logger.new($stdout)
+  end
 
   config.cache_store = :memory_store
   config.active_job.queue_adapter = :inline

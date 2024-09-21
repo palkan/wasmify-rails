@@ -10,6 +10,7 @@ import {
 export const initRailsVM = async (url, opts = {}) => {
   const progressCallback = opts.progressCallback;
   const outputCallback = opts.outputCallback;
+  const debugOn = opts.debug || false;
 
   progressCallback?.(`Loading WebAssembly module from ${url}...`);
 
@@ -61,7 +62,13 @@ export const initRailsVM = async (url, opts = {}) => {
     ENV["RAILS_ENV"] = "wasm"
     ENV["ACTIVE_RECORD_ADAPTER"] = "${databaseAdapter}"
 
-    puts "Initializing Rails application..."
+    ENV["DEBUG"] = "1" if ${debugOn}
+
+    if ${debugOn}
+      puts "Initializing Rails application in debug mode..."
+    else
+      puts "Initializing Rails application..."
+    end
 
     require "/rails/config/application.rb"
 
