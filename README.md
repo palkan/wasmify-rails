@@ -147,6 +147,10 @@ bin/rails wasmify:pack
 
 And go to the `pwa` for the instructions on how to launch the application.
 
+Here is an example app:
+
+<video src="https://github.com/user-attachments/assets/34e54379-5f3e-42eb-a4fa-96c9aaa91869"></video>
+
 ## Roadmap
 
 - PGLite support (see [this example](https://github.com/kateinoigakukun/mastodon/blob/fff2e4a626a20a616c546ddf4f91766abaf1133a/pwa/dist/pglite.rb#L1))
