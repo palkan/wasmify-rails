@@ -15,6 +15,10 @@
     "rails",
     "wasm"
   ],
+  "files": [
+    "src",
+    "package.json"
+  ],
   "scripts": {},
   "author": "Vladimir Dementyev",
   "license": "MIT",
