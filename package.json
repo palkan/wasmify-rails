@@ -1,0 +1,33 @@
+{
+  "name": "wasmify-rails",
+  "version": "0.1.0",
+  "description": "JS utilities for wasmify-rails",
+  "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "type": "module",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "keywords": [
+    "rails",
+    "wasm"
+  ],
+  "scripts": {},
+  "author": "Vladimir Dementyev",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@bjorn3/browser_wasi_shim": "^0.3.0",
+    "@ruby/wasm-wasi": "^2.6.2",
+    "set-cookie-parser": "^2.7.0"
+  },
+  "peerDependencies": {
+    "@sqlite.org/sqlite-wasm": ">= 3.44.0"
+  }
+}

@@ -1,0 +1,5 @@
+Description:
+    Configures the application for Wasm-ification
+
+Example:
+    bin/rails generate wasmify:install

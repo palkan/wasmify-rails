@@ -1,0 +1,4 @@
+bump:
+  file: lib/wasmify/rails/version.rb
+  skip_ci: true
+
