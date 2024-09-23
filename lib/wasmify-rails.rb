@@ -18,6 +18,8 @@ module ImageProcessing
   autoload :Null, "image_processing/null"
 end
 
+require "action_mailer/null_delivery"
+
 # NullDB for Active Record
 ActiveRecord::ConnectionAdapters.register("nulldb", "ActiveRecord::ConnectionAdapters::NullDBAdapter", "active_record/connection_adapters/nulldb_adapter")
 
