@@ -14,6 +14,7 @@ module ImageProcessing
         fail ArgumentError, "File not found: #{source}" unless File.file?(source)
 
         if destination
+          File.delete(destination) if File.identical?(source, destination)
           FileUtils.cp(source, destination)
         end
       end
