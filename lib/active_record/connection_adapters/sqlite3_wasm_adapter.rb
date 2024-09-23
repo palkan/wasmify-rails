@@ -118,6 +118,7 @@ module ActiveRecord
               str_val = val.to_s
               next str_val if val.typeof == "string"
               next str_val == "true" if val.typeof == "boolean"
+              next nil if str_val == "null"
 
               # handle integers and floats
               next str_val.include?(".") ? val.to_f : val.to_i if val.typeof == "number"
@@ -136,13 +137,36 @@ module ActiveRecord
         end
       end
 
+      # This type converts byte arrays represented as strings from JS to binaries in Ruby
+      class JSBinary < ActiveModel::Type::Binary
+        def deserialize(value)
+          bvalue = value
+          if value.is_a?(String)
+            bvalue = value.split(",").map(&:to_i).pack("c*")
+          end
+
+          super(bvalue)
+        end
+      end
+
+      ActiveRecord::Type.register(:binary, JSBinary, adapter: :sqlite3_wasm)
+
       class << self
         def database_exists?(config)
           true
         end
 
         def new_client(config) = ExternalInterface.new(config)
+
+        private
+          def initialize_type_map(m)
+            super
+            register_class_with_limit m, %r(binary)i, JSBinary
+          end
       end
+
+      # Re-initialize type map to include JSBinary
+      TYPE_MAP = Type::TypeMap.new.tap { |m| initialize_type_map(m) }
 
       attr_reader :external_interface
 
