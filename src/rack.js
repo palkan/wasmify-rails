@@ -48,6 +48,25 @@ export class RequestQueue {
   }
 }
 
+// We convert files from forms into data URIs and handle them via Rack DataUriUploads middleware.
+const DATA_URI_UPLOAD_PREFIX = "BbC14y";
+
+const fileToDataURI = async (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    reader.readAsDataURL(file);
+  });
+};
+
 export class RackHandler {
   constructor(vmSetup, opts = {}) {
     this.logger = opts.logger || console;
@@ -99,10 +118,15 @@ export class RackHandler {
           // Remove file/blob values from FormData
           for (const [key, value] of formData.entries()) {
             if (value instanceof File) {
-              console.warn(
-                `[rails-wasm] Ignore file form input ${key}. Not supported yet.`,
-              );
-              formData.delete(key);
+              try {
+                const dataURI = await fileToDataURI(value);
+                formData.set(key, DATA_URI_UPLOAD_PREFIX + dataURI);
+              } catch (e) {
+                console.warn(
+                  `[rails-wasm] Failed to convert file into data URI: ${e.message}. Ignoring file form input ${key}`,
+                );
+                formData.delete(key);
+              }
             }
           }
 

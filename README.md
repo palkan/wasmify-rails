@@ -155,7 +155,6 @@ Here is an example app:
 
 - PGLite support (see [this example](https://github.com/kateinoigakukun/mastodon/blob/fff2e4a626a20a616c546ddf4f91766abaf1133a/pwa/dist/pglite.rb#L1))
 - Active Storage OPFS service
-- File uploads support (multipart/form-data)
 - Background jobs support
 - WASI Preview 2 support (also [this](https://github.com/kateinoigakukun/mastodon/tree/katei/wasmify))
 
