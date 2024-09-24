@@ -29,6 +29,7 @@ module Rack
     private
 
     def transform_params(params)
+      return params unless params.is_a?(Hash)
       params.each do |key, value|
         if value.is_a?(String) && value.match?(DATAURI_REGEX)
           params[key] = from_data_uri(value)
