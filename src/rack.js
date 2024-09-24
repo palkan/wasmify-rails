@@ -67,9 +67,44 @@ const fileToDataURI = async (file) => {
   });
 };
 
+const cachedProcess = async (request, fallback) => {
+  const cachedResponse = await caches.match(request);
+  if (cachedResponse) {
+    // Add cached headers to the response, so we can track cache hits
+    const headers = new Headers(cachedResponse.headers);
+    headers.append("X-Cache", "HIT");
+    console.log("[rails-web] Cache hit", request.url);
+    return new Response(cachedResponse.body, {
+      status: cachedResponse.status,
+      statusText: cachedResponse.statusText,
+      headers,
+    });
+  }
+
+  const networkResponse = await fallback(request);
+  const cacheControl = networkResponse.headers.get("Cache-Control");
+
+  // Only cache if Cache-Control header doesn't indicate 'no-store' or 'no-cache'
+  if (
+    cacheControl &&
+    !cacheControl.includes("no-store") &&
+    !cacheControl.includes("no-cache")
+  ) {
+    // Cache everything with cache set to some days/months/more
+    const maxAgeMatch = cacheControl.match(/max-age=(\d{5,})/);
+    if (maxAgeMatch) {
+      const cache = await caches.open("rails-wasm");
+      cache.put(request, networkResponse.clone());
+    }
+  }
+
+  return networkResponse;
+};
+
 export class RackHandler {
   constructor(vmSetup, opts = {}) {
     this.logger = opts.logger || console;
+    this.cache = opts.cache || true;
     this.quiteAssets = opts.quiteAssets || true;
     this.assumeSSL = opts.assumeSSL || false;
     this.vmSetup = vmSetup;
@@ -79,6 +114,12 @@ export class RackHandler {
   handle(request) {
     if (!request.url.includes("/assets/")) {
       this.logger.log("[rails-web] Enqueue request: ", request);
+    }
+
+    if (this.cache) {
+      return cachedProcess(request, (req) => {
+        return this.queue.respond(req);
+      });
     }
 
     return this.queue.respond(request);
