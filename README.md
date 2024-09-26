@@ -13,7 +13,7 @@ Adding to your Gemfile:
 gem "wasmify-rails", group: [:development, :wasm]
 ```
 
-## Usage
+## Usage: generators and tasks
 
 This gem comes with a few commands (Rake tasks) to help you get started with packing your Rails app into a Wasm module.
 
@@ -151,6 +151,27 @@ Here is an example app:
 
 <video src="https://github.com/user-attachments/assets/34e54379-5f3e-42eb-a4fa-96c9aaa91869"></video>
 
+## Rails/Ruby extensions
+
+This gem provides a variety of _adapters_ and plugins to make your Rails application Wasm-compatible:
+
+- Active Record
+
+  - `sqlite3_wasm` adapter: work with `sqlite3` Wasm just like with a regular SQLite database.
+  - `nulldb` adapter for testing purposes.
+
+- Active Storage
+
+  - `null` variant processor (just leaves files as is)
+
+- Action Mailer
+
+  - `null` delivery method (to disable emails in Wasm)
+
+- Rack
+
+  - `Rack::DataUriUploads` middleware to transparently transform Data URI uploads into files.
+
 ## Roadmap
 
 - PGLite support (see [this example](https://github.com/kateinoigakukun/mastodon/blob/fff2e4a626a20a616c546ddf4f91766abaf1133a/pwa/dist/pglite.rb#L1))
@@ -164,7 +185,7 @@ Bug reports and pull requests are welcome on GitHub at [https://github.com/](htt
 
 ## Credits
 
-The `nulldb` adapter for Active Record (used for tests) is adopted from [this project](https://github.com/nulldb/nulldb).
+The `nulldb` adapter for Active Record (used for tests) is ported from [this project](https://github.com/nulldb/nulldb).
 
 ## License
 

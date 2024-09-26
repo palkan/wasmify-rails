@@ -47,8 +47,13 @@ class Wasmify::InstallGenerator < Rails::Generators::Base
     end
   end
 
-  def skip_bundler_setup_in_boot
+  def configure_boot_file
     inject_into_file "config/boot.rb", after: /require ['"]bundler\/setup['"]/ do
+      " unless RUBY_PLATFORM =~ /wasm/"
+    end
+
+    # Disable bootsnap if any
+    inject_into_file "config/boot.rb", after: /require ['"]bootsnap\/setup['"]/ do
       " unless RUBY_PLATFORM =~ /wasm/"
     end
   end
