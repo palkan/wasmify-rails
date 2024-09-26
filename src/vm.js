@@ -7,14 +7,23 @@ import {
   PreopenDirectory,
 } from "@bjorn3/browser_wasi_shim";
 
-export const initRailsVM = async (url, opts = {}) => {
+export const initRailsVM = async (url_or_module, opts = {}) => {
   const progressCallback = opts.progressCallback;
   const outputCallback = opts.outputCallback;
   const debugOn = opts.debug || false;
 
-  progressCallback?.(`Loading WebAssembly module from ${url}...`);
+  const url = typeof url_or_module === "string" ? url_or_module : undefined;
 
-  const module = await WebAssembly.compileStreaming(fetch(url));
+  let module;
+
+  if (url) {
+    progressCallback?.(`Loading WebAssembly module from ${url}...`);
+    module = await WebAssembly.compileStreaming(fetch(url));
+  } else {
+    // Assuming that the url_or_module is a WebAssembly module
+    module = url_or_module;
+  }
+
   const databaseAdapter = opts.database?.adapter || "sqlite3_wasm";
 
   const storageDirPath = opts.storageDir || "/rails/storage";

@@ -26,5 +26,8 @@ Rails.application.configure do
     config.active_storage.variant_processor = :null
   end
 
-  config.secret_key_base = "<change-me>"
+  # Do not use the same secret key base in a local app (for security reasons)
+  config.secret_key_base = "wasm-secret"
+  # Use a different session cookie name to avoid conflicts
+  config.session_store :cookie_store, key: "_local_session"
 end
