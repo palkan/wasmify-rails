@@ -2,6 +2,14 @@
 
 ## master
 
+## 0.1.2
+
+- Add cache support to Rack handler.
+
+  Now we use `caches` for files with `Cache-Control`, so we don't perform a Wasm request.
+
+- Minor fixes and improvements.
+
 ## 0.1.1
 
 - Support multipart file uploads by converting files to data URIs.
