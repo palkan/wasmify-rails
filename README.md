@@ -155,6 +155,8 @@ Here is an example app:
 
 This gem provides a variety of _adapters_ and plugins to make your Rails application Wasm-compatible:
 
+- `Kernel#on_wasm?`: a convenient predicate method to check if the code is running in the Wasm environment.
+
 - Active Record
 
   - `sqlite3_wasm` adapter: work with `sqlite3` Wasm just like with a regular SQLite database.

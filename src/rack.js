@@ -108,6 +108,8 @@ export class RackHandler {
     this.quiteAssets = opts.quiteAssets || true;
     this.assumeSSL = opts.assumeSSL || false;
     this.vmSetup = vmSetup;
+    // Check if cookieStore is supported
+    this.cookiesEnabled = !!globalThis.cookieStore;
     this.queue = new RequestQueue(this.process.bind(this));
   }
 
@@ -138,10 +140,14 @@ export class RackHandler {
     }
 
     try {
-      const cookies = await cookieStore.getAll();
-      const railsCookie = cookies.map((c) => `${c.name}=${c.value}`).join("; ");
+      if (this.cookiesEnabled) {
+        const cookies = await cookieStore.getAll();
+        const railsCookie = cookies
+          .map((c) => `${c.name}=${c.value}`)
+          .join("; ");
 
-      railsHeaders["HTTP_COOKIE"] = railsCookie;
+        railsHeaders["HTTP_COOKIE"] = railsCookie;
+      }
 
       let input = null;
 
@@ -227,22 +233,24 @@ export class RackHandler {
 
       let { status, headers, body } = res;
 
-      const cookie = headers["set-cookie"];
+      if (this.cookiesEnabled) {
+        const cookie = headers["set-cookie"];
 
-      if (cookie) {
-        const cookies = setCookieParser.parse(cookie, {
-          decodeValues: false,
-        });
-        cookies.forEach(async (c) => {
-          await cookieStore.set({
-            name: c.name,
-            value: c.value,
-            domain: c.domain,
-            path: c.path,
-            expires: c.expires,
-            sameSite: c.sameSite.toLowerCase(),
+        if (cookie) {
+          const cookies = setCookieParser.parse(cookie, {
+            decodeValues: false,
           });
-        });
+          cookies.forEach(async (c) => {
+            await cookieStore.set({
+              name: c.name,
+              value: c.value,
+              domain: c.domain,
+              path: c.path,
+              expires: c.expires,
+              sameSite: c.sameSite.toLowerCase(),
+            });
+          });
+        }
       }
 
       // Convert image into a blob

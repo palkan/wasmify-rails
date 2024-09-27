@@ -2,6 +2,12 @@
 
 ## master
 
+## 0.1.3
+
+- Check if `cookieStore` is available and only manipulate cookies if it is.
+
+- Add `skipWaiting()` to the server worker to force the new version to take over.
+
 ## 0.1.2
 
 - Add cache support to Rack handler.
