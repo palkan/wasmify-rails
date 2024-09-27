@@ -58,21 +58,74 @@ class Wasmify::InstallGenerator < Rails::Generators::Base
     end
   end
 
+  def disable_ruby_version_check_in_gemfile
+    inject_into_file "Gemfile", after: /^ruby[^#\n]+/ do
+      " unless RUBY_PLATFORM =~ /wasm/"
+    end
+  end
+
   def add_tzinfo_data_to_gemfile
+    # First, comment out the existing tzinfo-data gem declaration
+    comment_lines "Gemfile", /^gem ['"]tzinfo-data['"]/
+
     append_to_file "Gemfile", <<~RUBY
 
       group :wasm do
         gem "tzinfo-data"
       end
     RUBY
+  end
 
-    run "bundle install"
+  KNOWN_NO_WASM_GEMS = %w[
+    bootsnap
+    puma
+    sqlite3
+    activerecord-enhancedsqlite3-adapter
+    pg
+    mysql2
+    redis
+    solid_cable
+    jsbundling-rails
+    cssbundling-rails
+    thruster
+    byebug
+    web-console
+    listen
+    spring
+    debug
+  ].freeze
+
+  def add_wasm_group_to_gemfile
+    # This is a very straightforward implementation:
+    # - scan the Gemfile for _root_ dependencies (not within groups)
+    # - add `group: [:default, :wasm]` to those not from the exclude list
+
+    top_gems = []
+
+    File.read("Gemfile").then do |gemfile|
+      gemfile.scan(/^gem ['"]([^'"]+)['"](.+)$/).each do |match|
+        gem_name = match.first
+        top_gems << gem_name unless match.last&.include?(":wasm")
+      end
+    end
+
+    gems_to_include = top_gems - KNOWN_NO_WASM_GEMS
+
+    return if gems_to_include.empty?
+
+    regexp = /^gem ['"](?:#{gems_to_include.join("|")})['"][^#\n]*/
+
+    gsub_file "Gemfile", regexp do |match|
+      match << ", group: [:default, :wasm]"
+    end
   end
 
   def finish
+    run "bundle install"
+
     say_status :info, "✅ The application is prepared for Wasm-ificaiton!\n\n" \
                       "Next steps are:\n" \
-                      " - Gemfile: Add `group: [:default, :wasm]` to the dependencies required in Wasm runtime" \
+                      " - Check your Gemfile: add `group: [:default, :wasm]` to the dependencies required in Wasm runtime" \
                       " - Run `bin/rails wasmify:build:core:verify` to see if the bundle compiles"
   end
 end

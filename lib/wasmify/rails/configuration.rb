@@ -2,6 +2,11 @@
 
 module Wasmify
   module Rails
+    RUBY_VERSION_TO_WASM_RUBY_VERSION = {
+      "3.3" => "3.3.3",
+      "3.2" => "3.2.4"
+    }
+
     class Configuration
       attr_reader :pack_directories, :exclude_gems, :ruby_version,
                   :tmp_dir, :output_dir,
@@ -29,12 +34,16 @@ module Wasmify
         end
       end
 
+      def ruby_version = @ruby_version ||= ruby_version_from_file || "3.3"
+
       private
 
       def ruby_version_from_file
         return unless File.file?(::Rails.root.join(".ruby-version"))
 
-        File.read(::Rails.root.join(".ruby-version")).strip
+        File.read(::Rails.root.join(".ruby-version")).strip.match(/(\d+\.\d+(?:\.d+)?)/).then do |matches|
+          matches[1] if matches
+        end
       end
     end
   end

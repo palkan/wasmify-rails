@@ -31,6 +31,8 @@ The script will tweak you configuration files and create a couple of new ones:
 
 - `config/wasmify.yml` — this is a configuration file for different _wasmify_ commands (see below).
 
+It also adds the `wasm` group to your Gemfile (see below on that).
+
 ### Step 2: `bin/rails wasmify:build:core`
 
 Now, it's time to build a ruby.wasm with all your project dependencies (from the Gemfile). This is gonna be a base Wasm module
@@ -57,7 +59,9 @@ end
 ...
 ```
 
-**NOTE:** If you use `ruby file: ".ruby-version"` in your Gemfile, you should probably configure the Ruby version for Wasm platform
+We try to mark gems as wasm-compatible during the `wasmify:install` phase, but it's likely that you will need to adjust the Gemfile manually.
+
+If you use `ruby file: ".ruby-version"` in your Gemfile, you should probably configure the Ruby version for Wasm platform
 a bit differently (since patch versions might not match). For example:
 
 ```ruby
@@ -66,6 +70,12 @@ if RUBY_PLATFORM =~ /wasm/
 else
   ruby file: ".ruby-version"
 end
+```
+
+Or just disable the Ruby version check for the Wasm platform:
+
+```ruby
+ruby file: ".ruby-version" unless RUBY_PLATFORM =~ /wasm/
 ```
 
 Now, try to run the following command:

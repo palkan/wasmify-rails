@@ -2,6 +2,10 @@
 
 ## master
 
+- Improve `wasmify:install`.
+
+  Make it work with the `rails new` app without any manual steps.
+
 ## 0.1.3
 
 - Check if `cookieStore` is available and only manipulate cookies if it is.
