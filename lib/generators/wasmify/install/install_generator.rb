@@ -54,7 +54,7 @@ class Wasmify::InstallGenerator < Rails::Generators::Base
 
     # Disable bootsnap if any
     inject_into_file "config/boot.rb", after: /require ['"]bootsnap\/setup['"]/ do
-      " unless RUBY_PLATFORM =~ /wasm/"
+      %q( unless ENV["RAILS_ENV"] == "wasm")
     end
   end
 
@@ -85,9 +85,12 @@ class Wasmify::InstallGenerator < Rails::Generators::Base
     mysql2
     redis
     solid_cable
+    solid_queue
+    solid_cache
     jsbundling-rails
     cssbundling-rails
     thruster
+    kamal
     byebug
     web-console
     listen
@@ -103,7 +106,7 @@ class Wasmify::InstallGenerator < Rails::Generators::Base
     top_gems = []
 
     File.read("Gemfile").then do |gemfile|
-      gemfile.scan(/^gem ['"]([^'"]+)['"](.+)$/).each do |match|
+      gemfile.scan(/^gem ['"]([^'"]+)['"](.*)$/).each do |match|
         gem_name = match.first
         top_gems << gem_name unless match.last&.include?(":wasm")
       end
@@ -117,6 +120,12 @@ class Wasmify::InstallGenerator < Rails::Generators::Base
 
     gsub_file "Gemfile", regexp do |match|
       match << ", group: [:default, :wasm]"
+    end
+  end
+
+  def fix_solid_queeue_production_config
+    inject_into_file "config/environments/production.rb", after: %r{config.solid_queue.connects_to = [^#\n]+} do
+      " if config.respond_to?(:solid_queue)"
     end
   end
 

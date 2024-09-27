@@ -1,3 +1,14 @@
+# Stub: SQLite3::ForkSafety.suppress_warnings!
+module SQLite3
+  class BusyException < StandardError
+  end
+
+  module ForkSafety
+    def self.suppress_warnings!
+    end
+  end
+end
+
 require "active_record/connection_adapters/sqlite3_adapter"
 
 module SQLite3
@@ -105,6 +116,8 @@ module ActiveRecord
           execute
           @rows
         end
+
+        def column_count = columns.size
 
         def execute
           return if @rows

@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.1.4
+
 - Improve `wasmify:install`.
 
   Make it work with the `rails new` app without any manual steps.

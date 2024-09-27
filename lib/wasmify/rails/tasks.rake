@@ -14,7 +14,7 @@ namespace :wasmify do
   desc "Build ruby.wasm with all dependencies"
   task :build do
     unless ENV["BUNDLE_ONLY"] == "wasm"
-      next spawn("BUNDLE_ONLY=wasm bundle exec rails wasmify:build").then { Process.wait(_1) }
+      next spawn("RAILS_ENV=wasm BUNDLE_ONLY=wasm bundle exec rails wasmify:build").then { Process.wait(_1) }
     end
 
     require "wasmify/rails/builder"
@@ -27,7 +27,7 @@ namespace :wasmify do
     desc "Build ruby.wasm with all dependencies but JS shim (to use with wasmtime)"
     task :core do
       unless ENV["BUNDLE_ONLY"] == "wasm"
-        next spawn("BUNDLE_ONLY=wasm bundle exec rails wasmify:build:core").then { Process.wait(_1) }
+        next spawn("RAILS_ENV=wasm BUNDLE_ONLY=wasm bundle exec rails wasmify:build:core").then { Process.wait(_1) }
       end
 
       require "wasmify/rails/builder"
