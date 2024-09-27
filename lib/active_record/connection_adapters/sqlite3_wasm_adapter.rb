@@ -1,11 +1,11 @@
-# Stub: SQLite3::ForkSafety.suppress_warnings!
+# Rails 8 compatibility
 module SQLite3
-  class BusyException < StandardError
-  end
-
   module ForkSafety
     def self.suppress_warnings!
     end
+  end
+
+  class BusyException < StandardError
   end
 end
 
@@ -42,6 +42,12 @@ module ActiveRecord
 
         def exec(...)
           JS.global[js_interface].exec(...)
+        end
+
+        def execute_batch2(...)
+          # TODO: it's used by fixtures and truncate_all, so
+          # we don't need it right now
+          raise NotImplementedError, "sqlite3_wasm#execute_batch2 is not implemented yet"
         end
 
         def busy_timeout(...) = nil
@@ -195,6 +201,29 @@ module ActiveRecord
       def database_exists? = true
 
       def database_version = SQLite3Adapter::Version.new("3.45.1")
+
+      # Rails 8 interface
+      def perform_query(raw_connection, sql, binds, type_casted_binds, prepare:, notification_payload:, batch: false)
+        if batch
+          raw_connection.execute_batch2(sql)
+        elsif prepare
+          raise NotImplementedError, "sqlite3_wasm prepared statements are not implemented yet"
+        else
+          stmt = raw_connection.prepare(sql)
+          result =
+            if stmt.column_count.zero?
+              ActiveRecord::Result.empty
+            else
+              ActiveRecord::Result.new(stmt.columns, stmt.to_a)
+            end
+        end
+
+        @last_affected_rows = raw_connection.changes
+        verified!
+
+        notification_payload[:row_count] = result&.length || 0
+        result
+      end
     end
   end
 end

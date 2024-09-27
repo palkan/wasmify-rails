@@ -2,6 +2,8 @@
 
 ## master
 
+- Rails 8 support for `sqlite3_wasm` adapter.
+
 ## 0.1.4
 
 - Improve `wasmify:install`.
