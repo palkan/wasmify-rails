@@ -4,6 +4,9 @@
 
 This gem provides tools and extensions to compile Rails applications to WebAssembly.
 
+> [!NOTE]
+> Read more in our handbook: [Rails on Wasm](https://writebook-on-wasm.fly.dev/5/ruby-on-rails-on-webassembly)
+
 ## Installation
 
 Adding to your Gemfile:
