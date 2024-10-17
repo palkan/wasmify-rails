@@ -107,6 +107,7 @@ export class RackHandler {
     this.cache = opts.cache || true;
     this.quiteAssets = opts.quiteAssets || true;
     this.assumeSSL = opts.assumeSSL || false;
+    this.async = opts.async || false;
     this.vmSetup = vmSetup;
     // Check if cookieStore is supported
     this.cookiesEnabled = !!globalThis.cookieStore;
@@ -225,7 +226,16 @@ export class RackHandler {
         }
       `;
 
-      const res = vm.eval(command).toJS();
+      let res;
+
+      if (this.async) {
+        const proc = vm.eval(`proc do\n${command}\nend`);
+        res = await proc.callAsync("call");
+        // const retVal = await vm.evalAsync(command);
+        // res = retVal.toJS();
+      } else {
+        res = vm.eval(command).toJS();
+      }
 
       if (!railsURL.includes("/assets/")) {
         this.logger.log("[rails-web] Rails response", res);

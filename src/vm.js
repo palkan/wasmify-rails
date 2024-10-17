@@ -11,6 +11,7 @@ export const initRailsVM = async (url_or_module, opts = {}) => {
   const progressCallback = opts.progressCallback;
   const outputCallback = opts.outputCallback;
   const debugOn = opts.debug || false;
+  const env = opts.env || [];
 
   const url = typeof url_or_module === "string" ? url_or_module : undefined;
 
@@ -50,7 +51,7 @@ export const initRailsVM = async (url_or_module, opts = {}) => {
     storageDir,
   ];
 
-  const wasi = new WASI([], [], fds, { debug: false });
+  const wasi = new WASI([], env, fds, { debug: false });
   const vm = new RubyVM();
   const imports = {
     wasi_snapshot_preview1: wasi.wasiImport,

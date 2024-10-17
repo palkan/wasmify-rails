@@ -2,6 +2,12 @@
 
 ## master
 
+## 0.1.5
+
+- Added async mode to rack.js.
+
+- Added ability to pass env vars to Ruby VM.
+
 - Rails 8 support for `sqlite3_wasm` adapter.
 
 ## 0.1.4
