@@ -1,6 +1,6 @@
 {
   "name": "wasmify-rails",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "JS utilities for wasmify-rails",
   "main": "index.js",
   "engines": {
