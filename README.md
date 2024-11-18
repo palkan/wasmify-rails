@@ -172,7 +172,8 @@ This gem provides a variety of _adapters_ and plugins to make your Rails applica
 
 - Active Record
 
-  - `sqlite3_wasm` adapter: work with `sqlite3` Wasm just like with a regular SQLite database.
+  - `sqlite3_wasm` adapter: works with `sqlite3` Wasm just like with a regular SQLite database.
+  - `pglite` adapter: uses [pglite](https://pglite.dev) as a database.
   - `nulldb` adapter for testing purposes.
 
 - Active Storage

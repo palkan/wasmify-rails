@@ -12,6 +12,7 @@ export const initRailsVM = async (url_or_module, opts = {}) => {
   const outputCallback = opts.outputCallback;
   const debugOn = opts.debug || false;
   const env = opts.env || [];
+  const isAsync = opts.async || false;
 
   const url = typeof url_or_module === "string" ? url_or_module : undefined;
 
@@ -66,7 +67,7 @@ export const initRailsVM = async (url_or_module, opts = {}) => {
   wasi.initialize(instance);
   vm.initialize(["app.wasm", "-W0", "-e_=0", "-EUTF-8", `-r/bundle/setup`]);
 
-  vm.eval(`
+  const bootCode = `
     require "js"
 
     ENV["RAILS_ENV"] = "wasm"
@@ -80,12 +81,22 @@ export const initRailsVM = async (url_or_module, opts = {}) => {
       puts "Initializing Rails application..."
     end
 
+    # hack /dev/null https://github.com/ruby/ruby.wasm/issues/556
+    require "fileutils"
+    FileUtils.mkdir_p("/dev")
+    File.write("/dev/null", "")
+
     require "/rails/config/application.rb"
 
     Rails.application.initialize!
 
     puts "Rails application #{Rails.application.class.name.sub("::Application", "")} (#{Rails::VERSION::STRING}) has been initialized"
-  `);
+  `;
+
+  if (isAsync)
+    await vm.evalAsync(bootCode);
+  else
+    vm.eval(bootCode)
 
   return vm;
 };

@@ -25,3 +25,6 @@ ActiveRecord::ConnectionAdapters.register("nulldb", "ActiveRecord::ConnectionAda
 
 # SQLite3 Wasm adapter
 ActiveRecord::ConnectionAdapters.register("sqlite3_wasm", "ActiveRecord::ConnectionAdapters::SQLite3WasmAdapter", "active_record/connection_adapters/sqlite3_wasm_adapter")
+
+# PGlite adapter
+ActiveRecord::ConnectionAdapters.register("pglite", "ActiveRecord::ConnectionAdapters::PGliteAdapter", "active_record/connection_adapters/pglite_adapter")

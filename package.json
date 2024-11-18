@@ -1,6 +1,6 @@
 {
   "name": "wasmify-rails",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "JS utilities for wasmify-rails",
   "main": "index.js",
   "engines": {
@@ -28,10 +28,11 @@
   },
   "dependencies": {
     "@bjorn3/browser_wasi_shim": "^0.3.0",
-    "@ruby/wasm-wasi": "^2.6.2",
+    "@ruby/wasm-wasi": ">= 2.6.0",
     "set-cookie-parser": "^2.7.0"
   },
   "peerDependencies": {
-    "@sqlite.org/sqlite-wasm": ">= 3.44.0"
+    "@sqlite.org/sqlite-wasm": ">= 3.44.0",
+    "@electric-sql/pglite": "~> 0.2.13"
   }
 }

@@ -17,3 +17,13 @@ export function registerSQLiteWasmInterface(worker, db, opts = {}) {
     },
   };
 }
+
+export const registerPGliteWasmInterface = (worker, db, opts = {}) => {
+  const name = opts.name || "pglite4rails";
+
+  worker[name] = {
+    async query(sql, params) {
+      return db.query(sql, params);
+    }
+  };
+}
