@@ -9,7 +9,7 @@ module Wasmify
 
     class Configuration
       attr_reader :pack_directories, :exclude_gems, :ruby_version,
-                  :tmp_dir, :output_dir,
+                  :tmp_dir, :output_dir, :wasm_target,
                   :skip_assets_precompile
 
       def initialize
@@ -24,6 +24,7 @@ module Wasmify
         @tmp_dir = config["tmp_dir"] || ::Rails.root.join("tmp", "wasmify")
         @output_dir = config["output_dir"] || ::Rails.root.join("dist")
         @skip_assets_precompile = config["skip_assets_precompile"] || false
+        @wasm_target = config["wasm_target"] || "wasm32-unknown-wasip1"
       end
 
       def short_ruby_version

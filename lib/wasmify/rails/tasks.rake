@@ -12,28 +12,38 @@ namespace :wasmify do
   end
 
   desc "Build ruby.wasm with all dependencies"
-  task :build do
+  task :build, [:args] do |_, args|
+    opts = args.args
     unless ENV["BUNDLE_ONLY"] == "wasm"
-      next spawn("RAILS_ENV=wasm BUNDLE_ONLY=wasm bundle exec rails wasmify:build").then { Process.wait(_1) }
+      next spawn(%Q(RAILS_ENV=wasm BUNDLE_ONLY=wasm bundle exec rails 'wasmify:build[#{opts}]')).then do
+        Process.wait2(_1)
+      end.then do |(_, status)|
+        status.success? or exit(status.exitstatus)
+      end
     end
 
     require "wasmify/rails/builder"
 
     builder = Wasmify::Rails::Builder.new
-    builder.run(name: "ruby.wasm")
+    builder.run(name: "ruby.wasm", opts:)
   end
 
   namespace :build do
     desc "Build ruby.wasm with all dependencies but JS shim (to use with wasmtime)"
-    task :core do
+    task :core, [:args] do |_, args|
+      opts = args.args
       unless ENV["BUNDLE_ONLY"] == "wasm"
-        next spawn("RAILS_ENV=wasm BUNDLE_ONLY=wasm bundle exec rails wasmify:build:core").then { Process.wait(_1) }
+        next spawn(%Q(RAILS_ENV=wasm BUNDLE_ONLY=wasm bundle exec rails 'wasmify:build:core[#{opts}]')).then do
+          Process.wait2(_1)
+        end.then do |(_, status)|
+          status.success? or exit(status.exitstatus)
+        end
       end
 
       require "wasmify/rails/builder"
 
       builder = Wasmify::Rails::Builder.new
-      builder.run(name: "ruby-core.wasm", exclude_gems: ["js"])
+      builder.run(name: "ruby-core.wasm", exclude_gems: ["js"], opts:)
     end
 
     namespace :core do
@@ -55,11 +65,18 @@ namespace :wasmify do
   end
 
   desc "Pack the application into to a single module"
-  task pack: :build do
+  task :pack, [:args] do |_, args|
+    opts = args.args
+    Rails::Command.invoke "wasmify:build[#{opts}]"
+
     # First, precompile assets
     unless Wasmify::Rails.config.skip_assets_precompile
       Bundler.with_unbundled_env do
-        spawn("SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bundle exec rails assets:precompile").then { Process.wait(_1) }
+        spawn("SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bundle exec rails assets:precompile").then do
+          Process.wait2(_1)
+        end.then do |(_, status)|
+          status.success? or exit(status.exitstatus)
+        end
       end
     end
 
@@ -68,15 +85,27 @@ namespace :wasmify do
     packer = Wasmify::Rails::Packer.new
 
     packer.run(name: "app.wasm", ruby_wasm_path: File.join(Wasmify::Rails.config.tmp_dir, "ruby.wasm"))
+  ensure
+    # Clean up precompiled assets
+    unless Wasmify::Rails.config.skip_assets_precompile
+      FileUtils.rm_rf(Rails.root.join("public/assets")) if File.directory?(Rails.root.join("public/assets"))
+    end
   end
 
   namespace :pack do
     desc "Pack the application into to a single module without JS shim"
-    task :core do
+    task :core, [:args] do |_, args|
+      opts = args.args
+      Rails::Command.invoke "wasmify:build:core[#{opts}]"
+
       # First, precompile assets
       unless Wasmify::Rails.config.skip_assets_precompile
         Bundler.with_unbundled_env do
-          spawn("SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bundle exec rails assets:precompile").then { Process.wait(_1) }
+          spawn("SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bundle exec rails assets:precompile").then do
+            Process.wait2(_1)
+          end.then do |(_, status)|
+            status.success? or exit(status.exitstatus)
+          end
         end
       end
 
@@ -91,6 +120,11 @@ namespace :wasmify do
         ruby_wasm_path: File.join(Wasmify::Rails.config.tmp_dir, "ruby-core.wasm"),
         storage_dir: "storage"
       )
+    ensure
+      # Clean up precompiled assets
+      unless Wasmify::Rails.config.skip_assets_precompile
+        FileUtils.rm_rf(Rails.root.join("public/assets")) if File.directory?(Rails.root.join("public/assets"))
+      end
     end
 
     namespace :core do

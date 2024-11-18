@@ -11,13 +11,14 @@ module Wasmify
     class Builder
       ORIGINAL_EXCLUDED_GEMS = RubyWasm::Packager::EXCLUDED_GEMS.dup.freeze
 
-      attr_reader :output_dir
+      attr_reader :output_dir, :target
 
-      def initialize(output_dir: Wasmify::Rails.config.tmp_dir)
+      def initialize(output_dir: Wasmify::Rails.config.tmp_dir, target: Wasmify::Rails.config.wasm_target)
         @output_dir = output_dir
+        @target = target
       end
 
-      def run(name:, exclude_gems: [])
+      def run(name:, exclude_gems: [], opts: "")
         # Reset excluded gems
         RubyWasm::Packager::EXCLUDED_GEMS.replace(ORIGINAL_EXCLUDED_GEMS)
 
@@ -31,11 +32,22 @@ module Wasmify
           RubyWasm::Packager::EXCLUDED_GEMS << gem_name
         end
 
+        opts = opts&.split(" ") || []
+
         args = %W(
           build
           --ruby-version #{Wasmify::Rails.config.short_ruby_version}
+          --target #{target}
           -o #{File.join(output_dir, name)}
-        )
+        ) + opts
+
+        patches_dir = ::Rails.root.join("ruby_wasm_patches").to_s
+
+        if File.directory?(patches_dir)
+          Dir.children(patches_dir).each do |patch|
+            args << "--patch=#{File.join(patches_dir, patch)}"
+          end
+        end
 
         FileUtils.mkdir_p(output_dir)
         RubyWasm::CLI.new(stdout: $stdout, stderr: $stderr).run(args)
