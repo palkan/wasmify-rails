@@ -2,6 +2,8 @@
 
 ## master
 
+- Minor generators updates.
+
 ## 0.2.0
 
 - Add pglite support.

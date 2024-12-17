@@ -89,6 +89,7 @@ class Wasmify::InstallGenerator < Rails::Generators::Base
     solid_cache
     jsbundling-rails
     cssbundling-rails
+    tailwindcss-rails
     thruster
     kamal
     byebug
