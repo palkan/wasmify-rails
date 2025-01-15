@@ -2,7 +2,13 @@
 
 ## master
 
+## 0.2.2
+
 - Fix handling multipart uploads in Data URI middleware.
+
+- PWA template improvements.
+
+## 0.2.1
 
 - Minor generators updates.
 
