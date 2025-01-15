@@ -9,7 +9,7 @@ class Wasmify::PwaGenerator < Rails::Generators::Base
 
   def configure_wasm_dist
     prepend_to_file "config/wasmify.yml", <<~EOF
-      output_dir: pwa
+      output_dir: pwa/public
     EOF
   end
 
