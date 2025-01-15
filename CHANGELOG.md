@@ -2,6 +2,8 @@
 
 ## master
 
+- Fix handling multipart uploads in Data URI middleware.
+
 - Minor generators updates.
 
 ## 0.2.0

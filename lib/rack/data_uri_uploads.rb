@@ -21,6 +21,7 @@ module Rack
 
       if request.post? || request.put? || request.patch?
         transform_params(request.params)
+        env["action_dispatch.request.request_parameters"] = request.params
       end
 
       @app.call(env)
@@ -47,6 +48,8 @@ module Rack
       content_type = matches[1]
       encoding = matches[2]
       data = matches[3]
+
+      return if data.empty?
 
       file_data = Base64.decode64(data)
 
