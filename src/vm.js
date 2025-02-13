@@ -13,6 +13,7 @@ export const initRailsVM = async (url_or_module, opts = {}) => {
   const debugOn = opts.debug || false;
   const env = opts.env || [];
   const isAsync = opts.async || false;
+  const skipInitialize = opts.skipInitialize || false;
 
   const url = typeof url_or_module === "string" ? url_or_module : undefined;
 
@@ -86,11 +87,14 @@ export const initRailsVM = async (url_or_module, opts = {}) => {
     FileUtils.mkdir_p("/dev")
     File.write("/dev/null", "")
 
-    require "/rails/config/application.rb"
+    if ${skipInitialize}
+      puts "Rails application has been loaded but not initialized"
+    else
+      require "/rails/config/application.rb"
+      Rails.application.initialize!
 
-    Rails.application.initialize!
-
-    puts "Rails application #{Rails.application.class.name.sub("::Application", "")} (#{Rails::VERSION::STRING}) has been initialized"
+      puts "Rails application #{Rails.application.class.name.sub("::Application", "")} (#{Rails::VERSION::STRING}) has been initialized"
+    end
   `;
 
   if (isAsync)
