@@ -2,6 +2,12 @@
 
 ## master
 
+## 0.2.3
+
+- Add `skipInitialize` option to `initVM`.
+
+- Only skip extensions building for excluded gems.
+
 ## 0.2.2
 
 - Fix handling multipart uploads in Data URI middleware.
