@@ -20,7 +20,7 @@ module Wasmify
 
       def run(ruby_wasm_path:, name:, directories: Wasmify::Rails.config.pack_directories, storage_dir: nil)
         unless system("which wasi-vfs > /dev/null 2>&1")
-          raise "wasi-vfs is required to pack the application.\n"
+          raise "wasi-vfs is required to pack the application.\n" +
                "Please see installations instructions at: https://github.com/kateinoigakukun/wasi-vfs"
         end
 
