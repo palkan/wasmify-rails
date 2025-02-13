@@ -9,8 +9,6 @@ module Wasmify
   module Rails
     # A wrapper for rbwasm build command
     class Builder
-      ORIGINAL_EXCLUDED_GEMS = RubyWasm::Packager::EXCLUDED_GEMS.dup.freeze
-
       attr_reader :output_dir, :target
 
       def initialize(output_dir: Wasmify::Rails.config.tmp_dir, target: Wasmify::Rails.config.wasm_target)
@@ -19,18 +17,25 @@ module Wasmify
       end
 
       def run(name:, exclude_gems: [], opts: "")
-        # Reset excluded gems
-        RubyWasm::Packager::EXCLUDED_GEMS.replace(ORIGINAL_EXCLUDED_GEMS)
+        $exclude_exts = []
 
         # Add configured excluded gems
         Wasmify::Rails.config.exclude_gems.each do |gem_name|
-          RubyWasm::Packager::EXCLUDED_GEMS << gem_name
+          $exclude_exts << gem_name
         end
 
         # Add additional excluded gems
         exclude_gems.each do |gem_name|
-          RubyWasm::Packager::EXCLUDED_GEMS << gem_name
+          $exclude_exts << gem_name
         end
+
+        RubyWasm::Packager::Core::BuildStrategy.prepend(Module.new do
+          def specs_with_extensions
+            super.reject do |spec|
+              $exclude_exts.include?(spec.first.name)
+            end
+          end
+        end)
 
         opts = opts&.split(" ") || []
 
