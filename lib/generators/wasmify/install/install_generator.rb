@@ -133,7 +133,7 @@ class Wasmify::InstallGenerator < Rails::Generators::Base
   def finish
     run "bundle install"
 
-    say_status :info, "✅ The application is prepared for Wasm-ificaiton!\n\n" \
+    say_status :info, "✅ The application is prepared for Wasm-ification!\n\n" \
                       "Next steps are:\n" \
                       " - Check your Gemfile: add `group: [:default, :wasm]` to the dependencies required in Wasm runtime" \
                       " - Run `bin/rails wasmify:build:core:verify` to see if the bundle compiles"
