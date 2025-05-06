@@ -2,6 +2,12 @@
 
 ## master
 
+## 0.3.0
+
+- Add `ignore_gem_extensions` configuration option.
+
+- Make it possible to use builder and packer without Rails.
+
 ## 0.2.3
 
 - Add `skipInitialize` option to `initVM`.

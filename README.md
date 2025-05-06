@@ -188,6 +188,21 @@ This gem provides a variety of _adapters_ and plugins to make your Rails applica
 
   - `Rack::DataUriUploads` middleware to transparently transform Data URI uploads into files.
 
+## Known Issues
+
+### `can't load bigdecimal.so`
+
+Compiling `bigdecimal` as a gem (not a part of the Ruby distribution, i.e., when using recent Ruby versions) doesn't work; at the same time, modern Rails versions have `require 'bigdecimal` call on boot. Currently, we propose the following workaround:
+
+- Add `bigdecimal` to the `ignore_gem_extensions` list in the `wasmify.yml` file.
+- Add the following line to your `config/application.rb` file (before loading Wasm shims):
+
+```ruby
+$LOADED_FEATURES << $LOAD_PATH.resolve_feature_path("bigdecimal")[1]
+```
+
+We do not include this patch by default hoping that we can have a proper fix in the future.
+
 ## Roadmap
 
 - PGLite support (see [this example](https://github.com/kateinoigakukun/mastodon/blob/fff2e4a626a20a616c546ddf4f91766abaf1133a/pwa/dist/pglite.rb#L1))

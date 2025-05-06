@@ -3,7 +3,7 @@
 require "wasmify/rails/version"
 require "wasmify/rails/configuration"
 require "wasmify/rails/shim"
-require "wasmify/rails/railtie"
+require "wasmify/rails/railtie" if defined?(::Rails::Railtie)
 
 module Wasmify
   module Rails
@@ -17,14 +17,3 @@ end
 module ImageProcessing
   autoload :Null, "image_processing/null"
 end
-
-require "action_mailer/null_delivery"
-
-# NullDB for Active Record
-ActiveRecord::ConnectionAdapters.register("nulldb", "ActiveRecord::ConnectionAdapters::NullDBAdapter", "active_record/connection_adapters/nulldb_adapter")
-
-# SQLite3 Wasm adapter
-ActiveRecord::ConnectionAdapters.register("sqlite3_wasm", "ActiveRecord::ConnectionAdapters::SQLite3WasmAdapter", "active_record/connection_adapters/sqlite3_wasm_adapter")
-
-# PGlite adapter
-ActiveRecord::ConnectionAdapters.register("pglite", "ActiveRecord::ConnectionAdapters::PGliteAdapter", "active_record/connection_adapters/pglite_adapter")

@@ -135,6 +135,9 @@ module Rails
     class NullSanitizer
       class << self
         def safe_list_sanitizer = self
+        def full_sanitizer = self
+        def link_sanitizer = self
+        def safe_list_sanitizer = self
       end
 
       def sanitize(html, ...) = html
