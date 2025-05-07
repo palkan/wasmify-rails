@@ -2,6 +2,10 @@
 
 ## master
 
+## 0.3.1
+
+- Use latest patch versions for Ruby 3.3 and 3.4.
+
 ## 0.3.0
 
 - Add `ignore_gem_extensions` configuration option.

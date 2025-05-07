@@ -4,12 +4,6 @@ require "yaml"
 
 module Wasmify
   module Rails
-    RUBY_VERSION_TO_WASM_RUBY_VERSION = {
-      "3.4" => "3.4.1",
-      "3.3" => "3.3.3",
-      "3.2" => "3.2.4"
-    }
-
     class Configuration
       attr_reader :pack_directories, :pack_root, :additional_root_files,
                   :exclude_gems, :ignore_gem_extensions,
