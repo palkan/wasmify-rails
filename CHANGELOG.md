@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.3.2
+
 - Add `Rack::WASI::IncomingHandler` mimicking `wasi/http:proxy` interface.
 
 ## 0.3.1

@@ -19,6 +19,14 @@ require "bundler"
 # Load core classes and deps patches
 $LOAD_PATH.unshift File.expand_path("shims", __dir__)
 
+# Prevent features:
+#   - `bundler/setup` — we do that manually via `/bundle/setup`#
+%w[
+  bundler/setup
+].each do |feature|
+  $LOAD_PATH.resolve_feature_path(feature)&.then { $LOADED_FEATURES << _1[1] }
+end
+
 # Misc patches
 
 # Make gem no-op
