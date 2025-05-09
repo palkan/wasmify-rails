@@ -19,7 +19,9 @@ module Rack
 
       request = Rack::Request.new(env)
 
-      if request.post? || request.put? || request.patch?
+      if (
+        request.post? || request.put? || request.patch?
+      ) && request.get_header("HTTP_CONTENT_TYPE").match?(%r{multipart/form-data})
         transform_params(request.params)
         env["action_dispatch.request.request_parameters"] = request.params
       end

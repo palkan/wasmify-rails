@@ -325,7 +325,7 @@ class ActiveRecord::ConnectionAdapters::NullDBAdapter < ActiveRecord::Connection
 
   def new_table_definition(adapter = nil, table_name = nil, is_temporary = nil, options = {})
     case ::ActiveRecord::VERSION::MAJOR
-    when 6, 7
+    when 6, 7, 8
       TableDefinition.new(self, table_name, temporary: is_temporary, options: options.except(:id))
     when 5
       TableDefinition.new(table_name, is_temporary, options.except(:id), nil)

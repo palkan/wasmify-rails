@@ -2,6 +2,8 @@
 
 ## master
 
+- Add `Rack::WASI::IncomingHandler` mimicking `wasi/http:proxy` interface.
+
 ## 0.3.1
 
 - Use latest patch versions for Ruby 3.3 and 3.4.

@@ -5,10 +5,9 @@ begin
 rescue LoadError
 end
 
+Dir["#{__dir__}/support/**/*.rb"].sort.each { |f| require f }
+
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "wasmify-rails"
 
-Dir["#{__dir__}/support/**/*.rb"].sort.each { |f| require f }
-
 require "minitest/autorun"
-
