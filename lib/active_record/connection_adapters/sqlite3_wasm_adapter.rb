@@ -52,7 +52,9 @@ module ActiveRecord
 
         def busy_timeout(...) = nil
 
-        def busy_handler_timeout=(...) = nil
+        def busy_handler_timeout=(...)
+          nil
+        end
 
         def execute(sql)
           @last_statement = Statement.new(self, sql)
