@@ -107,10 +107,18 @@ module ActiveRecord
         private attr_reader :js_interface
 
         def initialize(config)
-          @js_interface = config.fetch(:js_interface, "pglite4rails").to_sym
+          @js_interface =
+            if config[:js_interface]
+              config[:js_interface]
+            else
+              # Set up the database in JS and get the idenfier back
+              JS.global[:pglite].create_interface(config[:database]).await.to_s
+            end.to_sym
           @last_result = nil
           @prepared_statements_map = {}
         end
+
+        def finished? = true
 
         def set_client_encoding(encoding)
         end

@@ -9,6 +9,10 @@ end
 class Socket < BasicSocket
   AF_UNSPEC = 0
   AF_INET = 1
+
+  def self.gethostname
+    "localhost"
+  end
 end
 
 class IPSocket < Socket

@@ -29,8 +29,29 @@ end
 
 # Misc patches
 
+# Stub drb/unix for test parallelization
+$LOADED_FEATURES << $LOAD_PATH.resolve_feature_path("drb/unix")[1]
+
 # Make gem no-op
 define_singleton_method(:gem) { |*| nil }
+
+module FileUtils
+  # Touch doesn't work for some reason
+  def self.touch(path) = File.write(path, "")
+end
+
+# Support Kernel.at_exit
+module Kernel
+  @@at_exit_hooks = []
+
+  def at_exit(&block)
+    @@at_exit_hooks << block
+  end
+
+  def execute_at_exit_hooks
+    @@at_exit_hooks.reverse_each { _1.call }
+  end
+end
 
 # Patch Bundler.require to simply require files without looking at specs
 def Bundler.require(*groups)
@@ -68,6 +89,7 @@ class Thread
   def self.new(...)
     f = Fiber.new(...)
     def f.value = resume
+    def f.join = value
     f
   end
 end

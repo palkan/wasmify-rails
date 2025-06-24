@@ -144,6 +144,7 @@ module Rack
           headers["HTTP_#{key.upcase.gsub("-", "_")}"] = value
           headers
         end
+
         http_method = req.method.upcase
         headers[:method] = http_method
 
@@ -167,7 +168,7 @@ module Rack
 
           # Serve images as base64 from Ruby and decode back in JS
           # FIXME: extract into a separate middleware and add a header to indicate the transformation
-          if headers["Content-Type"]&.start_with?("image/")
+          if response_headers["Content-Type"]&.start_with?("image/")
             body = Base64.strict_encode64(body)
           end
 

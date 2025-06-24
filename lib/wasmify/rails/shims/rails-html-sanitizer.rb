@@ -138,6 +138,9 @@ module Rails
         def full_sanitizer = self
         def link_sanitizer = self
         def safe_list_sanitizer = self
+        def allowed_tags = []
+        def allowed_attributes = []
+        def allowed_styles = []
       end
 
       def sanitize(html, ...) = html

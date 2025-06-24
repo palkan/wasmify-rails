@@ -16,7 +16,6 @@ module Wasmify
   end
 end
 
-
 require "action_mailer/null_delivery"
 
 # NullDB for Active Record
@@ -27,3 +26,6 @@ ActiveRecord::ConnectionAdapters.register("sqlite3_wasm", "ActiveRecord::Connect
 
 # PGlite adapter
 ActiveRecord::ConnectionAdapters.register("pglite", "ActiveRecord::ConnectionAdapters::PGliteAdapter", "active_record/connection_adapters/pglite_adapter")
+
+require "active_record/tasks/pglite_database_tasks"
+ActiveRecord::Tasks::DatabaseTasks.register_task(/pglite/, "ActiveRecord::Tasks::PGliteDatabaseTasks")
