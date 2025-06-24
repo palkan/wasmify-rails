@@ -2,6 +2,10 @@
 
 ## master
 
+## 0.4.0
+
+- Backport various patches from Rails tutorial.
+
 ## 0.3.2
 
 - Add `Rack::WASI::IncomingHandler` mimicking `wasi/http:proxy` interface.
