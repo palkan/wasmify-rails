@@ -2,6 +2,10 @@
 
 ## master
 
+## 0.4.1
+
+- Do not include DataUriUploads middleware in tests.
+
 ## 0.4.0
 
 - Backport various patches from Rails tutorial.

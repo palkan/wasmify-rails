@@ -8,6 +8,8 @@ module Wasmify
       end
 
       initializer "wasmify.rack_data_uri" do |app|
+        next if ::Rails.env.test?
+
         require "rack/data_uri_uploads"
 
         app.middleware.use Rack::DataUriUploads
