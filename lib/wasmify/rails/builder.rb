@@ -8,7 +8,10 @@ require "ruby_wasm/cli"
 # Patch ruby.wasm CLI to use the latest patch versions of Ruby
 RubyWasm::CLI.singleton_class.prepend(Module.new do
   def build_source_aliases(root)  # for ruby_wasm 2.8.x and earlier
-    super
+    super.tap do |sources|
+      sources["3.3"][:url] = "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.8.tar.gz"
+      sources["3.4"][:url] = "https://cache.ruby-lang.org/pub/ruby/3.4/ruby-3.4.3.tar.gz"
+    end
   end
 
   def build_config_aliases(root)  # for ruby_wasm 2.9.0+
