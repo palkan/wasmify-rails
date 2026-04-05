@@ -13,6 +13,7 @@ end
 return unless on_wasm?
 
 # Setup Bundler
+require "rubygems"
 require "/bundle/setup"
 require "bundler"
 
