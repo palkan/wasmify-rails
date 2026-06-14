@@ -190,6 +190,10 @@ This gem provides a variety of _adapters_ and plugins to make your Rails applica
 
 ## Known Issues
 
+### `3.4 fails on gem deprecations`
+Ruby 3.3.3 is a suggested starting point for getting to hello world, as 3.4 currently fails on upstream gem deprecation warnings, per [here](https://github.com/ruby/prism/issues/4065) and [here](https://github.com/palkan/wasmify-rails/pull/12#issuecomment-4274321590)
+
+
 ### `can't load bigdecimal.so`
 
 Compiling `bigdecimal` as a gem (not a part of the Ruby distribution, i.e., when using recent Ruby versions) doesn't work; at the same time, modern Rails versions have `require 'bigdecimal` call on boot. Currently, we propose the following workaround:
