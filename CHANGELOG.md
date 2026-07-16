@@ -2,6 +2,10 @@
 
 ## master
 
+## 0.4.2
+
+- Minor fixes.
+
 ## 0.4.1
 
 - Do not include DataUriUploads middleware in tests.
