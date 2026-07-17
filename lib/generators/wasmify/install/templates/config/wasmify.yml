@@ -16,6 +16,8 @@ exclude_gems:
   - io-console
   - psych
   - date
+  - json
+  - openssl
 
 # Skip building native extensions for the following gems (and keep their Ruby source)
 # ignore_gem_extensions:

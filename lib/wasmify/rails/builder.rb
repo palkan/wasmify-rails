@@ -86,6 +86,15 @@ module Wasmify
           end
         end
 
+        # Version-specific patches
+        version_patches_dir = File.join(__dir__, "ruby_wasm_patches", Wasmify::Rails.config.short_ruby_version)
+
+        if File.directory?(version_patches_dir)
+          Dir.children(version_patches_dir).each do |patch|
+            args << "--patch=#{File.join(version_patches_dir, patch)}"
+          end
+        end
+
         FileUtils.mkdir_p(output_dir)
         RubyWasm::CLI.new(stdout: $stdout, stderr: $stderr).run(args)
       end

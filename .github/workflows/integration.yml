@@ -1,0 +1,64 @@
+name: Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  WASI_VFS_VERSION: "0.5.5"
+
+jobs:
+  wasmify:
+    name: "Ruby ${{ matrix.ruby }} x Rails ${{ matrix.rails }}"
+    runs-on: ubuntu-latest
+    # continue-on-error: ${{ matrix.ruby != '3.3' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["3.3", "3.4", "4.0"]
+        rails: ["8.0", "8.1"]
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install wasmtime
+        run: |
+          curl https://wasmtime.dev/install.sh -sSf | bash
+          echo "$HOME/.wasmtime/bin" >> "$GITHUB_PATH"
+      - name: Cache wasi-vfs
+        uses: actions/cache@v4
+        with:
+          path: ~/.wasi-vfs
+          key: ${{ runner.os }}-wasi-vfs-${{ env.WASI_VFS_VERSION }}
+      - name: Install wasi-vfs
+        run: |
+          if [ ! -f "$HOME/.wasi-vfs/wasi-vfs" ]; then
+            mkdir -p "$HOME/.wasi-vfs"
+            curl -sSfL "https://github.com/kateinoigakukun/wasi-vfs/releases/download/v${WASI_VFS_VERSION}/wasi-vfs-cli-x86_64-unknown-linux-gnu.zip" -o /tmp/wasi-vfs.zip
+            unzip -o /tmp/wasi-vfs.zip -d "$HOME/.wasi-vfs"
+          fi
+          sudo cp "$HOME/.wasi-vfs/wasi-vfs" /usr/local/bin/wasi-vfs
+          wasi-vfs --version
+      - name: Cache rails new app
+        uses: actions/cache@v4
+        with:
+          path: tmp/integration/apps/rails-${{ matrix.rails }}
+          key: ${{ runner.os }}-railsapp-${{ matrix.rails }}-v1
+      - name: Cache ruby.wasm build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            rubies
+          key: ${{ runner.os }}-rubywasm-${{ matrix.ruby }}-v1
+      - name: Run wasmification integration test
+        run: bundle exec rake test:integration
+        env:
+          RUBY_VERSION: ${{ matrix.ruby }}
+          RAILS_VERSION: ${{ matrix.rails }}

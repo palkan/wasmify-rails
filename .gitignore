@@ -40,5 +40,9 @@ Gemfile.local
 tmp/
 .rbnext/
 
+# Wasm build artifacts (rbwasm build output + integration test toolchain cache)
+build/
+rubies/
+
 gemfiles/*.lock
 
