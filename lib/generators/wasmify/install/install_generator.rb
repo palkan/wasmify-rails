@@ -28,14 +28,18 @@ class Wasmify::InstallGenerator < Rails::Generators::Base
   end
 
   def configure_gitignore
-    append_to_file ".gitignore", <<~EOF
-      # Ignore the compiled WebAssembly modules
-      *.wasm
-      # Ignore ruby.wasm build artefacts
-      build/
-      rubies/
-      dist/
-    EOF
+    in_root do
+      next unless File.file?(".gitignore")
+
+      append_to_file ".gitignore", <<~EOF
+        # Ignore the compiled WebAssembly modules
+        *.wasm
+        # Ignore ruby.wasm build artefacts
+        build/
+        rubies/
+        dist/
+      EOF
+    end
   end
 
   def inject_wasmify_shim_into_environment

@@ -142,9 +142,9 @@ namespace :wasmify do
             require "/rails/config/application"
             puts "Initializing Rails application..."
             Rails.application.initialize!
-            puts "Rails application initialized!\n\nLets try to make a request..."
+            puts "Rails application initialized!\n\nLets try to make a health check request..."
 
-            request = Rack::MockRequest.env_for("http://localhost:3000", {"HTTP_HOST" => "localhost"})
+            request = Rack::MockRequest.env_for("http://localhost:3000/up", {"HTTP_HOST" => "localhost"})
             puts Rails.application.call(request)
           RUBY
         )

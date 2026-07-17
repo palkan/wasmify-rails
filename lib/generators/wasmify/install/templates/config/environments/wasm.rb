@@ -19,7 +19,10 @@ Rails.application.configure do
   end
 
   config.cache_store = :memory_store
-  config.active_job.queue_adapter = :inline
+
+  if config.respond_to?(:active_job)
+    config.active_job.queue_adapter = :inline
+  end
 
   if config.respond_to?(:action_mailer)
     config.action_mailer.delivery_method = :null
