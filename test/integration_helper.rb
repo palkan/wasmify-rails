@@ -124,6 +124,9 @@ module Wasmify
         # HACK: add openssl gem so we can fetch ruby.wasm artifacts
         sh!("bundle add openssl", chdir: work_dir)
         sh!("bundle exec rails generate wasmify:install --force", chdir: work_dir)
+        # ensure all deps are installed
+        sh!("bundle install", chdir: work_dir)
+        update_wasmify_yml
         pin_wasm_ruby_version
 
         unless File.file?(File.join(work_dir, "Gemfile.lock"))
@@ -196,6 +199,20 @@ module Wasmify
         File.open(File.join(work_dir, "Gemfile"), "a") do |f|
           f.write(%(\ngem "wasmify-rails", path: #{root.inspect}\n))
         end
+      end
+
+      # Add/remove exluded gems depending on the target Ruby version
+      def update_wasmify_yml
+        path = File.join(work_dir, "config", "wasmify.yml")
+        return unless File.file?(path)
+
+        contents = File.read(path)
+
+        unless ruby_version == "3.3" && rails_version == "8.0"
+          contents.sub!(/^\s+\- bigdecimal.*$\n/, "")
+        end
+
+        File.write(path, contents)
       end
 
       # Add (not edit) a top-level ruby_version key to config/wasmify.yml. The
