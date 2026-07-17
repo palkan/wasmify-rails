@@ -13,6 +13,8 @@ module PGlite
   end
 
   class Result
+    attr_reader :res
+
     def initialize(res)
       @res = res
     end
@@ -24,7 +26,7 @@ module PGlite
     def values
       results = []
       columns = self.fields
-      @res[:rows].to_a.each do |raw_row|
+      res[:rows].to_a.each do |raw_row|
         row = []
         columns.each do |col|
           value = raw_row[col]
@@ -36,11 +38,11 @@ module PGlite
     end
 
     def fields
-      @res[:fields].to_a.map { |col| col[:name].to_s }
+      res[:fields].to_a.map { |col| col[:name].to_s }
     end
 
     def ftype(index)
-      @res[:fields][index][:dataTypeID]
+      res[:fields][index][:dataTypeID]
     end
 
     def fmod(index)
@@ -48,7 +50,11 @@ module PGlite
     end
 
     def cmd_tuples
-      @res[:affectedRows].to_i
+      res[:affectedRows].to_i
+    end
+
+    def ntuples
+      @res[:rows][:length].to_i
     end
 
     def clear
@@ -58,7 +64,7 @@ module PGlite
 
     def each
       columns = self.fields
-      @res[:rows].to_a.each do |raw_row|
+      res[:rows].to_a.each do |raw_row|
         row = {}
         columns.each do |col|
           value = raw_row[col]
@@ -116,9 +122,10 @@ module ActiveRecord
             end.to_sym
           @last_result = nil
           @prepared_statements_map = {}
+          @finished = false
         end
 
-        def finished? = true
+        def finished? = @finished
 
         def set_client_encoding(encoding)
         end
@@ -173,6 +180,10 @@ module ActiveRecord
 
         def reset
           @prepared_statements_map = {}
+        end
+
+        def close
+          @finished = true
         end
       end
 

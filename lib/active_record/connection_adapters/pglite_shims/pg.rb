@@ -10,9 +10,12 @@ module PG
 
   class Error < StandardError; end
   class ConnectionBad < Error; end
+  class FeatureNotSupported < Error; end
 
   class Connection
     class << self
+      def conndefaults_hash = {}
+
       def quote_ident(str)
         str = str.to_s
         return '""' if str.empty?
