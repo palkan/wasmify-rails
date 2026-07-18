@@ -11,6 +11,7 @@ module Wasmify
     # (Ruby, Rails) combination:
     #
     #   rails new --minimal -> wasmify:install -> build:core:verify -> pack:core:verify
+    #     -> pack (full, JS shim) -> node scripts/verify.js (boot + PGlite queries)
     #
     # Generated apps and the rbwasm toolchain (build/, rubies/) are cached and
     # symlinked into per-cell working copies so repeated runs stay cheap.
@@ -22,14 +23,15 @@ module Wasmify
 
       # wasi-vfs absence is a hard failure in the gem; wasmtime absence makes
       # verify a silent no-op (hence the marker checks below), so we fail fast
-      # on both before doing any work.
-      REQUIRED_TOOLS = %w[wasmtime wasi-vfs].freeze
+      # on both before doing any work. node/npm run the JS verification step.
+      REQUIRED_TOOLS = %w[wasmtime wasi-vfs node npm].freeze
 
       # stdout markers the verify tasks print. Exit code alone is not enough:
       # Wasmtimer.run exits 0 without doing anything when wasmtime is missing,
       # so a green exit without the marker is a false pass.
       BUILD_VERIFY_MARKER = "Your Rails version is:"
       PACK_VERIFY_MARKER = "Rails application initialized!"
+      JS_VERIFY_MARKER = "JS + PGlite verification passed"
 
       # RUBY_VERSION/RAILS_VERSION are the task interface only; unset them in
       # child processes (RUBY_VERSION is also read by Ruby/Bundler).
@@ -50,6 +52,7 @@ module Wasmify
         install
         build_and_verify
         pack_and_verify
+        pack_full_and_verify_js
         true
       end
 
@@ -128,6 +131,7 @@ module Wasmify
         sh!("bundle install", chdir: work_dir)
         update_wasmify_yml
         pin_wasm_ruby_version
+        skip_assets_precompile
 
         unless File.file?(File.join(work_dir, "Gemfile.lock"))
           raise Error, "Expected Gemfile.lock after wasmify:install in #{work_dir}."
@@ -144,6 +148,24 @@ module Wasmify
         log("pack:core + verify")
         sh!("bundle exec rails wasmify:pack:core", chdir: work_dir)
         verify!("bundle exec rails wasmify:pack:core:verify", PACK_VERIFY_MARKER)
+      end
+
+      # Full pack (with the JS shim) -> run the packed module in Node.js via the
+      # wasmify-rails JS package: boot Rails, query a PGlite database through
+      # the pglite adapter, and hit /up. Exercises the browser-facing half of
+      # the gem that the wasmtime-based verifies above cannot reach.
+      def pack_full_and_verify_js
+        log("pack (full, JS shim)")
+        sh!("bundle exec rails wasmify:pack", chdir: work_dir)
+
+        unless File.file?(File.join(work_dir, "dist", "app.wasm"))
+          raise Error, "Expected dist/app.wasm after wasmify:pack in #{work_dir}."
+        end
+
+        log("node verify (PGlite)")
+        copy_js_verifier
+        sh!("npm install --no-audit --no-fund --legacy-peer-deps", chdir: File.join(work_dir, "scripts"))
+        verify!("node scripts/verify.js dist/app.wasm", JS_VERIFY_MARKER)
       end
 
       # --- Helpers ------------------------------------------------------------
@@ -227,6 +249,44 @@ module Wasmify
         return if contents.match?(/^ruby_version:/)
 
         File.write(path, "ruby_version: \"#{ruby_version}\"\n\n#{contents}")
+      end
+
+      # The minimal app has no asset pipeline, so the assets:precompile step of
+      # the full wasmify:pack would fail; disable it via wasmify.yml.
+      def skip_assets_precompile
+        path = File.join(work_dir, "config", "wasmify.yml")
+        return unless File.file?(path)
+
+        contents = File.read(path)
+        return if contents.match?(/^skip_assets_precompile:/)
+
+        File.write(path, "skip_assets_precompile: true\n\n#{contents}")
+      end
+
+      def js_templates_dir = File.join(root, "test", "integration", "templates")
+
+      # Materialize the reusable Node.js verification app into the working copy:
+      # scripts/verify.js plus a package.json that installs the gem's JS
+      # package (src/) from a freshly packed tarball.
+      def copy_js_verifier
+        scripts_dir = File.join(work_dir, "scripts")
+        FileUtils.mkdir_p(scripts_dir)
+        FileUtils.cp(File.join(js_templates_dir, "verify.js"), File.join(scripts_dir, "verify.js"))
+        FileUtils.cp(File.join(js_templates_dir, "package.json"), File.join(scripts_dir, "package.json"))
+        pack_js_package(scripts_dir)
+      end
+
+      # `npm pack` the gem checkout and pin the tarball under a stable name.
+      # A `file:<dir>` dependency would be installed as a symlink, and Node
+      # resolves ESM imports from the realpath — the gem checkout, which has no
+      # node_modules — so the package's own deps would not be found. A tarball
+      # is installed as a real copy and avoids that.
+      def pack_js_package(scripts_dir)
+        sh!("npm pack #{Shellwords.escape(root)} --pack-destination .", chdir: scripts_dir)
+        tarball = Dir[File.join(scripts_dir, "wasmify-rails-*.tgz")].first
+        raise Error, "npm pack did not produce a tarball in #{scripts_dir}" unless tarball
+
+        FileUtils.mv(tarball, File.join(scripts_dir, "wasmify-rails.tgz"))
       end
 
       def symlink_force(target, link)

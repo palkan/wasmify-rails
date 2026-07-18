@@ -1,0 +1,9 @@
+{
+  "name": "wasmify-rails-integration-verify",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@electric-sql/pglite": ">= 0.2.13",
+    "wasmify-rails": "file:./wasmify-rails.tgz"
+  }
+}
