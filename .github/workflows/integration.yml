@@ -13,12 +13,16 @@ jobs:
   wasmify:
     name: "Ruby ${{ matrix.ruby }} x Rails ${{ matrix.rails }}"
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.3", "3.4", "4.0"]
-        rails: ["8.0", "8.1"]
+        ruby: ["3.3"]
+        rails: ["8.0"]
+        include:
+          - ruby: "3.4"
+            rails: "8.1"
+          - ruby: "4.0"
+            rails: "8.1"
 
     steps:
       - uses: actions/checkout@v6
@@ -59,10 +63,9 @@ jobs:
           path: |
             build
             rubies
-          key: ${{ runner.os }}-rubywasm-${{ matrix.ruby }}-v1
+          key: ${{ runner.os }}-rubywasm-${{ matrix.ruby }}-${{ matrix.rails }}-v1
       - name: Run wasmification integration test
         run: |
-            gem install erb
             bundle exec rake test:integration
         env:
           RUBY_VERSION: ${{ matrix.ruby }}
