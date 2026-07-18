@@ -61,7 +61,9 @@ jobs:
             rubies
           key: ${{ runner.os }}-rubywasm-${{ matrix.ruby }}-v1
       - name: Run wasmification integration test
-        run: bundle exec rake test:integration
+        run: |
+            gem install erb
+            bundle exec rake test:integration
         env:
           RUBY_VERSION: ${{ matrix.ruby }}
           RAILS_VERSION: ${{ matrix.rails }}
