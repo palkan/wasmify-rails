@@ -2,6 +2,12 @@
 
 ## master
 
+## 0.5.0
+
+- PGlite adapter compatibility fixes.
+
+- Default configuration updates (to support Ruby >3.3 and Rails 8.1).
+
 ## 0.4.2
 
 - Minor fixes.
